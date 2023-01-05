@@ -181,6 +181,7 @@ export default defineComponent({
       if (!this.has_err) {
         message.success('Configuration saved!');
       }
+      await this.reload();
     }
   },
   mounted() {
