@@ -5,6 +5,7 @@ specifiers:
   '@vitejs/plugin-vue': ^4.0.0
   ant-design-vue: ^3.2.15
   axios: ^1.2.2
+  dayjs: ^1.11.7
   typescript: ^4.9.3
   vite: ^4.0.0
   vue: ^3.2.45
@@ -15,6 +16,7 @@ dependencies:
   '@ant-design/icons-vue': registry.npmmirror.com/@ant-design/icons-vue/6.1.0_vue@3.2.45
   ant-design-vue: registry.npmmirror.com/ant-design-vue/3.2.15_vue@3.2.45
   axios: registry.npmmirror.com/axios/1.2.2
+  dayjs: registry.npmmirror.com/dayjs/1.11.7
   vue: registry.npmmirror.com/vue/3.2.45
   vue-router: registry.npmmirror.com/vue-router/4.1.6_vue@3.2.45
 

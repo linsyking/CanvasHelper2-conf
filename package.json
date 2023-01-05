@@ -12,6 +12,7 @@
     "@ant-design/icons-vue": "^6.1.0",
     "ant-design-vue": "^3.2.15",
     "axios": "^1.2.2",
+    "dayjs": "^1.11.7",
     "vue": "^3.2.45",
     "vue-router": "4"
   },

@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <h1>Course Configuration</h1>
+    <a-typography-title :level="2">Course Configuration</a-typography-title>
     <p>Configure all the courses.</p>
 
     <a-divider orientation="center">Course Table</a-divider>
