@@ -13,7 +13,7 @@ import Stats from './components/Stats.vue'
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        { path: '/', component: App },
+        { path: '/', redirect: '/settings' },
         { path: '/settings', component: Settings, children:[
             {
                 path: 'general',

@@ -23,32 +23,44 @@
       </template>
     </a-table>
 
-    <a-modal v-model:visible="edit_visible" :title="current_edit_course?.name" :confirm-loading="edit_confirmLoading"
+    <a-modal v-model:visible="edit_visible" title="Edit course" :confirm-loading="edit_confirmLoading"
       @ok="edit_handleOk">
-      <p>
-        Course Name
+      <a-space direction="vertical" style="width: 100%;">
+        <div>
+          Course Name
+        </div>
         <a-input v-model:value="current_edit_course.name" placeholder="Course name" />
-      </p>
-      <p>
-        Course ID
-        <a-input v-model:value="current_edit_course.id" placeholder="Course ID">
-          <template #suffix>
-            <a-tooltip title="This is the ID you found in canvas url">
-              <info-circle-outlined style="color: rgba(0, 0, 0, 0.45)" />
-            </a-tooltip>
-          </template>
-        </a-input>
-      </p>
-      <p>Type</p>
-      <a-radio-group v-model:value="current_edit_course.type" style="margin-bottom: 10px">
-        <a-radio-button value="ass">Assignment</a-radio-button>
-        <a-radio-button value="ann">Announcement</a-radio-button>
-        <a-radio-button value="dis">Discussion</a-radio-button>
-      </a-radio-group>
-      <p>
-        Max Show Number (-1 means no limit)
-        <a-input v-model:value="current_edit_course.maxshow" placeholder="Max Show Number" />
-      </p>
+        <div>
+          Course ID
+          <a-tooltip title="This is the ID you found in canvas url">
+            <info-circle-outlined style="color: rgba(0, 0, 0, 0.45)" />
+          </a-tooltip>
+        </div>
+
+        <a-input-number v-model:value="current_edit_course.id" :min="0" />
+        <div>Type</div>
+        <a-radio-group v-model:value="current_edit_course.type" style="margin-bottom: 10px">
+          <a-radio-button value="ass">Assignment</a-radio-button>
+          <a-radio-button value="ann">Announcement</a-radio-button>
+          <a-radio-button value="dis">Discussion</a-radio-button>
+        </a-radio-group>
+        <div>
+          Max Show Number (-1 means no limit)
+        </div>
+        <a-input-number v-model:value="current_edit_course.maxshow" :min="-1" />
+        <div>Order</div>
+        <a-radio-group v-model:value="current_edit_course.order" style="margin-bottom: 10px">
+          <a-radio-button value="normal">Normal</a-radio-button>
+          <a-radio-button value="reverse">Reverse</a-radio-button>
+        </a-radio-group>
+      </a-space>
+      <div>
+        Custom Message
+        <a-tooltip title="You can use HTML tags. A special tag <ppt>Hint</ppt> can show some hint.">
+          <info-circle-outlined style="color: rgba(0, 0, 0, 0.45)" />
+        </a-tooltip>
+      </div>
+      <a-textarea v-model:value="current_edit_course.msg" placeholder="Course Message" auto-size />
     </a-modal>
   </Page>
 </template>
@@ -116,7 +128,7 @@ export default defineComponent({
           },
         ],
         data: [],
-        loading_course_table: false,
+        loading_course_table: true,
         edit_visible: false,
         edit_confirmLoading: false,
         current_edit_course: {
@@ -140,45 +152,35 @@ export default defineComponent({
     show_edit(id: number) {
       // Deep copy
       const old_course = this.data[id];
-      this.current_edit_course = {
-        key: old_course.key,
-        name: old_course.name,
-        id: old_course.id,
-        type: old_course.type,
-        maxshow: old_course.maxshow,
-        order: old_course.order,
-        msg: old_course.msg,
-      }
+      this.current_edit_course = JSON.parse(JSON.stringify(old_course));
       this.edit_visible = true;
     },
     async edit_handleOk() {
       this.edit_confirmLoading = true;
       // Here we should send a request to the server to update the course.
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // const response = await get('/courses/')
       this.edit_confirmLoading = false;
       this.edit_visible = false;
     },
     async refresh() {
       // Get courses
       this.loading_course_table = true;
-      const response = await get("courses");
-      if (response) {
-        if (response.status === 200) {
-          const data = response.data;
-          this.data = data.map((item: any, index: number) => {
-            return {
-              key: index,
-              name: item.course_name,
-              id: item.course_id,
-              type: item.type,
-              maxshow: item.max_show ? item.max_show : -1,
-              order: item.order ? item.order : "relative",
-              msg: item.msg ? item.msg : "",
-            };
-          });
-        } else {
-          message.error("Failed to get course info.");
-        }
+      const response = await get("/courses");
+      if (response && response.status === 200) {
+        const data = response.data;
+        this.data = data.map((item: any, index: number) => {
+          return {
+            key: index,
+            name: item.course_name,
+            id: item.course_id,
+            type: item.type,
+            maxshow: item.max_show ? item.max_show : -1,
+            order: item.order ? item.order : "normal",
+            msg: item.msg ? item.msg : "",
+          };
+        });
+      } else {
+        message.error("Failed to get course info");
       }
       this.loading_course_table = false;
     },
@@ -193,17 +195,15 @@ export default defineComponent({
           // Remove all selected
           for (const key of this.selectedRowKeys) {
             const response = await del(
-              `courses/${this.data[key].id}/${this.data[key].type}`
+              `/courses/${this.data[key].id}/${this.data[key].type}`
             );
-            if (response) {
-              if (response.status != 200) {
-                hasError = true;
-                message.error("Failed to delete course.");
-              }
+            if (!response || response.status != 200) {
+              hasError = true;
+              message.error("Failed to delete course");
             }
           }
           if (!hasError) {
-            message.success("Successfully deleted course.");
+            message.success("Successfully deleted course");
           }
           this.selectedRowKeys = [];
 
@@ -212,14 +212,24 @@ export default defineComponent({
         },
       });
     },
+    async verify_config() {
+      const response = await get("/config/verify");
+      return response && response.status === 200;
+    }
   },
   computed: {
     hasSelected() {
       return this.selectedRowKeys.length > 0;
     },
   },
-  mounted() {
-    this.refresh();
+  async mounted() {
+    const config_good = await this.verify_config();
+    if (!config_good) {
+      message.error("Please first configure the server");
+      this.$router.push("/settings/general");
+      return;
+    }
+    await this.refresh();
   },
   components: {
     Page,

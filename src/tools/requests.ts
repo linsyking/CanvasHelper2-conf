@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {AxiosError} from 'axios'
 
-const Base_url = 'http://192.168.1.12:9999/canvashelper/api/v1/'
+const Base_url = 'http://192.168.1.12:9283'
 
 export async function get(path:string) {
     try {

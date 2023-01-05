@@ -3,9 +3,9 @@
     <a-layout-header :style="{ position: 'fixed', zIndex: 1, width: '100%' }">
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
-        <a-menu-item key="1">Courses configuration</a-menu-item>
-        <a-menu-item key="2">General configuration</a-menu-item>
-        <a-menu-item key="3">Statistics</a-menu-item>
+        <a-menu-item key="courses">Courses configuration</a-menu-item>
+        <a-menu-item key="general">General configuration</a-menu-item>
+        <a-menu-item key="stats">Statistics</a-menu-item>
       </a-menu>
     </a-layout-header>
 
@@ -23,18 +23,23 @@ import { defineComponent } from "vue";
 export default defineComponent({
   data() {
     return {
-      selectedKeys: ["1"]
+      selectedKeys: ["courses"]
     }
+  },
+  mounted() {
+    const path = this.$router.currentRoute.value.path;
+    const npath = path.substring(path.lastIndexOf('/') + 1);
+    this.selectedKeys = [npath]
   },
   watch: {
     selectedKeys(newVal) {
-      if (newVal == "1") {
-        this.$router.push("/settings/courses")
-      } else if (newVal == "2") {
-        this.$router.push("/settings/general")
-      } else if (newVal == "3") {
-        this.$router.push("/settings/stats")
-      }
+      this.$router.push(`/settings/${newVal}`)
+      this.$router.getRoutes()
+    },
+    '$router.currentRoute.value'() {
+      const path = this.$router.currentRoute.value.path;
+      const npath = path.substring(path.lastIndexOf('/') + 1);
+      this.selectedKeys = [npath]
     }
   }
 })
