@@ -77,11 +77,16 @@
 <script lang="ts">
 import Page from './PageSlot.vue';
 import dayjs from 'dayjs';
-import type { UploadProps, UploadChangeParam } from 'ant-design-vue';
+import type { UploadChangeParam } from 'ant-design-vue';
 import { del, get, Base_url, put } from "../tools/requests";
 
 import { message } from "ant-design-vue";
 import { defineComponent } from "vue";
+
+interface UploadProps {
+  name: string,
+  url: string
+}
 
 export default defineComponent({
   data() {
