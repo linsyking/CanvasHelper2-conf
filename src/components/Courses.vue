@@ -18,7 +18,8 @@
     <a-table :row-selection="{
       selectedRowKeys: selectedRowKeys,
       onChange: onSelectChange,
-    }" :columns="columns" :loading="loading_course_table" :data-source="data" style="margin-top: 10px">
+    }" :columns="columns" :loading="loading_course_table" :data-source="data"
+      style="margin-top: 10px; overflow-x: auto;">
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.dataIndex === 'name'">
           <a @click="show_edit(record.key)">{{ text }}</a>
@@ -28,21 +29,21 @@
 
     <!-- Edit course -->
 
-    <a-modal v-model:visible="edit_visible" title="Add course" :confirm-loading="edit_confirmLoading"
+    <a-modal v-model:visible="edit_visible" title="Edit course" :confirm-loading="edit_confirmLoading"
       @ok="edit_handleOk">
       <a-space direction="vertical" style="width: 100%;">
         <div>
-          Course Name
-        </div>
-        <a-input v-model:value="current_edit_course.name" placeholder="Course name" />
-        <div>
-          Course ID
-          <a-tooltip title="This is the ID you found in canvas url">
+          Course Name & Course ID
+          <a-tooltip title="Course ID is the canvas url">
             <info-circle-outlined style="color: rgba(0, 0, 0, 0.45)" />
           </a-tooltip>
         </div>
+        <a-input-group compact>
+          <a-auto-complete v-model:value="current_edit_course.name" :options="canvas_courses_name" style="width: 50%"
+            placeholder="Course name" :filter-option="filterCourses" @select="onSelectOption" />
+          <a-input-number v-model:value="current_edit_course.id" :min="0" />
+        </a-input-group>
 
-        <a-input-number v-model:value="current_edit_course.id" :min="0" />
         <div>Type</div>
         <a-radio-group v-model:value="current_edit_course.type" style="margin-bottom: 10px">
           <a-radio-button value="ass">Assignment</a-radio-button>
@@ -73,17 +74,17 @@
     <a-modal v-model:visible="add_visible" title="Add course" :confirm-loading="add_confirmLoading" @ok="add_handleOk">
       <a-space direction="vertical" style="width: 100%;">
         <div>
-          Course Name
-        </div>
-        <a-input v-model:value="current_add_course.name" placeholder="Course name" />
-        <div>
-          Course ID
-          <a-tooltip title="This is the ID you found in canvas url">
+          Course Name & Course ID
+          <a-tooltip title="Course ID is the canvas url">
             <info-circle-outlined style="color: rgba(0, 0, 0, 0.45)" />
           </a-tooltip>
         </div>
+        <a-input-group compact>
+          <a-auto-complete v-model:value="current_add_course.name" :options="canvas_courses_name" style="width: 50%"
+            placeholder="Course name" :filter-option="filterCourses" @select="onSelectOption" />
+          <a-input-number v-model:value="current_add_course.id" :min="0" />
+        </a-input-group>
 
-        <a-input-number v-model:value="current_add_course.id" :min="0" />
         <div>Type</div>
         <a-radio-group v-model:value="current_add_course.type" style="margin-bottom: 10px">
           <a-radio-button value="ass">Assignment</a-radio-button>
@@ -133,6 +134,15 @@ interface ColumnType {
   dataIndex: string;
 }
 
+interface CanvasCourse {
+  title: string;
+  id: number;
+}
+
+interface CourseOption {
+  value: string;
+}
+
 export default defineComponent({
   data() {
     return <
@@ -147,6 +157,7 @@ export default defineComponent({
         add_visible: boolean;
         add_confirmLoading: boolean;
         current_add_course: CourseType;
+        canvas_courses: CanvasCourse[];
       }
       >{
         selectedRowKeys: [],
@@ -200,15 +211,34 @@ export default defineComponent({
           order: "normal",
           msg: "",
         },
+        canvas_courses: []
       };
   },
   methods: {
+    onSelectOption(value: string) {
+      const course = this.canvas_courses.find((course) => course.title === value);
+      if (course) {
+        this.current_add_course.id = course.id;
+        this.current_edit_course.id = course.id;
+      }
+    },
+    filterCourses(inputValue: string, option: CourseOption) {
+      return option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
+    },
     onSelectChange(selectedRowKeys: number[]) {
       this.selectedRowKeys = selectedRowKeys;
     },
     add() {
       const newkey = this.data.length;
-      this.current_add_course.key = newkey;
+      this.current_add_course = {
+        key: newkey,
+        name: "",
+        id: 0,
+        type: "ann",
+        maxshow: -1,
+        order: "normal",
+        msg: "",
+      };
       this.add_visible = true;
     },
     async add_handleOk() {
@@ -288,6 +318,19 @@ export default defineComponent({
       } else {
         message.error("Failed to get course info:" + response?.data.message);
       }
+
+      const canvascourses = await get("/courses/canvas");
+      this.canvas_courses = [];
+      if (canvascourses && canvascourses.status === 200) {
+        for (const course of canvascourses.data) {
+          this.canvas_courses.push({
+            title: course.name,
+            id: course.id,
+          });
+        }
+      } else {
+        message.error("Failed to get canvas courses:" + canvascourses?.data.message);
+      }
       this.loading_course_table = false;
     },
     remove() {
@@ -347,7 +390,16 @@ export default defineComponent({
     },
     onlySelectOne() {
       return this.selectedRowKeys.length === 1;
-    }
+    },
+    canvas_courses_name() {
+      var res: CourseOption[] = [];
+      for (const course of this.canvas_courses) {
+        res.push({
+          value: course.title
+        });
+      }
+      return res;
+    },
   },
   async mounted() {
     const config_good = await this.verify_config();
