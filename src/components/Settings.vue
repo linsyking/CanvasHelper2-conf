@@ -1,6 +1,6 @@
 <template>
   <a-layout>
-    <a-layout-header :style="{ position: 'fixed', zIndex: 1, width: '100%' }">
+    <a-layout-header :style="{ position: 'fixed', zIndex: 10, width: '100%' }">
       <div class="logo" />
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="horizontal" :style="{ lineHeight: '64px' }">
         <a-menu-item key="courses">Courses configuration</a-menu-item>
