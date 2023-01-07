@@ -13,17 +13,22 @@
 
     <a-layout-footer :style="{ textAlign: 'center' }">
       TechJI 2023
+      <a-divider type="vertical" />
+      <a target="_blank" :href="base_url + '/docs'">API</a>
+      <a-divider type="vertical" />
+      <a target="_blank" href="https://github.com/linsyking/CanvasHelper2">Doc</a>
     </a-layout-footer>
   </a-layout>
 </template>
   
 <script lang="ts">
-
+import {Base_url} from "../tools/requests";
 import { defineComponent } from "vue";
 export default defineComponent({
   data() {
     return {
-      selectedKeys: ["courses"]
+      selectedKeys: ["courses"],
+      base_url: Base_url
     }
   },
   mounted() {

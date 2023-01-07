@@ -68,7 +68,7 @@
         description="This part is still under heavy development. Feel free to contribute if you are interested!"
         type="warning" show-icon />
       <a-row justify="center" style="margin-top: 30px;">
-        <a-button type="primary" @click="submit" :loading="submit_loading">Submit</a-button>
+        <a-button type="primary" @click="submit" :loading="submit_loading">Save</a-button>
       </a-row>
     </a-space>
   </Page>
@@ -220,7 +220,7 @@ export default defineComponent({
       this.verify_loading = true;
       const res = await get('/config/verify');
       if (res && res.status === 200) {
-        message.success('Configuration verified!');
+        message.success('Configuration verified');
       } else {
         message.error('Configuration verification failed: ' + res?.data.message);
       }
@@ -231,7 +231,7 @@ export default defineComponent({
       this.reload_loading = true;
       const res = await get('/config/refresh');
       if (res && res.status === 200) {
-        message.success('Configuration reloaded!');
+        message.success('Configuration reloaded');
       } else {
         message.error('Configuration reload failed: ' + res?.data.message);
       }
@@ -262,7 +262,7 @@ export default defineComponent({
       }
 
       if (!this.has_err) {
-        message.success('Configuration saved!');
+        message.success('Configuration saved');
       }
       await this.reload();
       this.submit_loading = false;

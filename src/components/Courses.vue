@@ -404,7 +404,7 @@ export default defineComponent({
   async mounted() {
     const config_good = await this.verify_config();
     if (!config_good) {
-      message.error("Please first configure the server");
+      message.error("Please first configure the canvas");
       this.$router.push("/settings/general");
       return;
     }
