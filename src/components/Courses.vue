@@ -324,7 +324,7 @@ export default defineComponent({
       if (canvascourses && canvascourses.status === 200) {
         for (const course of canvascourses.data) {
           this.canvas_courses.push({
-            title: course.name,
+            title: course.shortName,
             id: course.id,
           });
         }
