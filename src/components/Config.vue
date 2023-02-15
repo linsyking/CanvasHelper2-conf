@@ -11,7 +11,7 @@
       <p>The URL of your canvas.</p>
       <a-input v-model:value="url" placeholder="Url" />
       <a-typography-title :level="3">Access Token</a-typography-title>
-      <p>Access Token of your canvas account.</p>
+      <p>Access Token of your canvas account. (<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-manage-API-access-tokens-as-an-admin/ta-p/89" target="_blank">Tutorial for getting an access token</a>)</p>
       <a-input v-model:value="token" placeholder="Access Token" />
       <a-typography-title :level="3">Semester <a-badge count="v 2.0" :number-style="{ backgroundColor: '#52c41a' }" />
       </a-typography-title>
