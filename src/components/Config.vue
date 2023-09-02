@@ -14,7 +14,6 @@
       <a-auto-complete v-model:value="port" :dataSource="datasource" style="width: 200px" @select="onSelect" @search="handleSearch" placeholder="eg. 9283"/>
       <p>Port is: {{ port }}</p>
       <p>baseurl is: {{ base_url }}</p>
-      <p>request baseurl is: {{ request_base_url }}</p>
       <a-button type="primary" @click="Connect_Reload" :loading="reload_loading">Connect</a-button>
 
       <a-divider orientation="center">Canvas</a-divider>
@@ -89,7 +88,7 @@
 import Page from './PageSlot.vue';
 import dayjs from 'dayjs';
 import type { UploadChangeParam } from 'ant-design-vue';
-import { del, get, Base_url, put } from "../tools/requests";
+import { del, get, Base_url, put, customBaseurl } from "../tools/requests";
 
 import { message } from "ant-design-vue";
 import { defineComponent } from "vue";
@@ -153,12 +152,13 @@ export default defineComponent({
     },
     async Connect_Reload(){
       this.reload_loading = true;
-      Base_url = 'http://localhost:' + this.port;
+      this.base_url = 'http://localhost:' + this.port;
+      customBaseurl(this.base_url);
       const res = await get('/config/refresh');
       if (res && res.status === 200) {
         message.success('Backend Connected.');
       } else {
-        message.error('Connecting failed: ' + res?.data.message);
+        message.error('Connecting failed: ');
       }
       await this.reload();
       this.reload_loading = false;

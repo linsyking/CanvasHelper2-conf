@@ -1,6 +1,10 @@
 import axios from 'axios'
 import { AxiosError } from 'axios'
-export let Base_url = 'http://localhost:9283';
+export let Base_url = '';
+
+export async function customBaseurl(value: any){
+  Base_url = value;
+}
 
 export async function get(path: string) {
   try {
