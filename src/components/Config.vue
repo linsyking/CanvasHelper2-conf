@@ -6,6 +6,17 @@
     </a-typography-paragraph>
     <a-skeleton active v-if="loading" />
     <a-space direction="vertical" style="width: 100%;" v-if="!loading">
+      
+      <!-- port choosing -->
+      <a-divider orientation="center">Run Settings</a-divider>
+      <a-typography-title :level="3">Port</a-typography-title>
+      <p>Choose a port for the backend to run.</p>
+      <a-auto-complete v-model:value="port" :dataSource="datasource" style="width: 200px" @select="onSelect" @search="handleSearch" placeholder="eg. 9283"/>
+      <p>Port is: {{ port }}</p>
+      <p>baseurl is: {{ base_url }}</p>
+      <p>request baseurl is: {{ request_base_url }}</p>
+      <a-button type="primary" @click="Connect_Reload" :loading="reload_loading">Connect</a-button>
+
       <a-divider orientation="center">Canvas</a-divider>
       <a-typography-title :level="3">Canvas URL</a-typography-title>
       <p>The URL of your canvas.</p>
@@ -106,7 +117,9 @@ export default defineComponent({
       has_err: boolean,
       time_format_mode: string,
       background_filelist: UploadProps[],
-      base_url: string
+      port: string,
+      base_url: string,
+      datasource: string[]
     }>{
         title: '',
         loading: true,
@@ -123,10 +136,33 @@ export default defineComponent({
         has_err: false,
         time_format_mode: 'relative',
         background_filelist: [],
-        base_url: Base_url
+        port: '',
+        base_url: '',
+        datasource: []
       };
   },
   methods: {
+    async handleSearch() {
+      const res = await get('/config/key/port');
+        if (res && res.status === 200) {
+          this.datasource = [res.data];
+        }
+      },
+    async onSelect(value: any) {
+        console.log('onSelect', value);
+    },
+    async Connect_Reload(){
+      this.reload_loading = true;
+      Base_url = 'http://localhost:' + this.port;
+      const res = await get('/config/refresh');
+      if (res && res.status === 200) {
+        message.success('Backend Connected.');
+      } else {
+        message.error('Connecting failed: ' + res?.data.message);
+      }
+      await this.reload();
+      this.reload_loading = false;
+    },
     async onChangeFilelist(change: UploadChangeParam) {
       if (change.file.status == 'done') {
         this.background_url = change.file.name;
