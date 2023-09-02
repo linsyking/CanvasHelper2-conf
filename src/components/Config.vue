@@ -12,8 +12,6 @@
       <a-typography-title :level="3">Port</a-typography-title>
       <p>Choose a port for the backend to run.</p>
       <a-auto-complete v-model:value="port" :dataSource="datasource" style="width: 200px" @select="onSelect" @search="handleSearch" placeholder="eg. 9283"/>
-      <p>Port is: {{ port }}</p>
-      <p>baseurl is: {{ base_url }}</p>
       <a-button type="primary" @click="Connect_Reload" :loading="reload_loading">Connect</a-button>
 
       <a-divider orientation="center">Canvas</a-divider>
