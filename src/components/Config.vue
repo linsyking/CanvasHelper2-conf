@@ -6,6 +6,14 @@
     </a-typography-paragraph>
     <a-skeleton active v-if="loading" />
     <a-space direction="vertical" style="width: 100%;" v-if="!loading">
+      
+      <!-- port choosing -->
+      <a-divider orientation="center">Run Settings</a-divider>
+      <a-typography-title :level="3">Port</a-typography-title>
+      <p>Please input the port that the backend runs.</p>
+      <a-auto-complete v-model:value="port" :dataSource="datasource" style="width: 200px" @select="onSelect" @search="handleSearch" placeholder="eg. 9283"/>
+      <a-button type="primary" @click="Connect_Reload" :loading="reload_loading">Connect</a-button>
+
       <a-divider orientation="center">Canvas</a-divider>
       <a-typography-title :level="3">Canvas URL</a-typography-title>
       <p>The URL of your canvas.</p>
@@ -78,7 +86,7 @@
 import Page from './PageSlot.vue';
 import dayjs from 'dayjs';
 import type { UploadChangeParam } from 'ant-design-vue';
-import { del, get, Base_url, put } from "../tools/requests";
+import { del, get, customPort, Base_url, put, customBaseurl } from "../tools/requests";
 
 import { message } from "ant-design-vue";
 import { defineComponent } from "vue";
@@ -106,7 +114,9 @@ export default defineComponent({
       has_err: boolean,
       time_format_mode: string,
       background_filelist: UploadProps[],
-      base_url: string
+      port: string,
+      base_url: string,
+      datasource: string[]
     }>{
         title: '',
         loading: true,
@@ -123,10 +133,31 @@ export default defineComponent({
         has_err: false,
         time_format_mode: 'relative',
         background_filelist: [],
-        base_url: Base_url
+        port: '',
+        base_url: '',
+        datasource: []
       };
   },
   methods: {
+    async handleSearch() {
+      this.datasource = [customPort];
+    },
+    async onSelect(value: any) {
+        console.log('onSelect', value);
+    },
+    async Connect_Reload(){
+      this.reload_loading = true;
+      this.base_url = 'http://localhost:' + this.port;
+      customBaseurl(this.port);
+      const res = await get('/config/refresh');
+      if (res && res.status === 200) {
+        message.success('Backend Connected.');
+      } else {
+        message.error('Connecting failed: ');
+      }
+      await this.reload();
+      this.reload_loading = false;
+    },
     async onChangeFilelist(change: UploadChangeParam) {
       if (change.file.status == 'done') {
         this.background_url = change.file.name;
