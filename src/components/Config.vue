@@ -10,7 +10,7 @@
       <!-- port choosing -->
       <a-divider orientation="center">Run Settings</a-divider>
       <a-typography-title :level="3">Port</a-typography-title>
-      <p>Choose a port for the backend to run.</p>
+      <p>Please input the port that the backend runs.</p>
       <a-auto-complete v-model:value="port" :dataSource="datasource" style="width: 200px" @select="onSelect" @search="handleSearch" placeholder="eg. 9283"/>
       <a-button type="primary" @click="Connect_Reload" :loading="reload_loading">Connect</a-button>
 
@@ -86,7 +86,7 @@
 import Page from './PageSlot.vue';
 import dayjs from 'dayjs';
 import type { UploadChangeParam } from 'ant-design-vue';
-import { del, get, Base_url, put, customBaseurl } from "../tools/requests";
+import { del, get, customPort, Base_url, put, customBaseurl } from "../tools/requests";
 
 import { message } from "ant-design-vue";
 import { defineComponent } from "vue";
@@ -140,18 +140,15 @@ export default defineComponent({
   },
   methods: {
     async handleSearch() {
-      const res = await get('/config/key/port');
-        if (res && res.status === 200) {
-          this.datasource = [res.data];
-        }
-      },
+      this.datasource = [customPort];
+    },
     async onSelect(value: any) {
         console.log('onSelect', value);
     },
     async Connect_Reload(){
       this.reload_loading = true;
       this.base_url = 'http://localhost:' + this.port;
-      customBaseurl(this.base_url);
+      customBaseurl(this.port);
       const res = await get('/config/refresh');
       if (res && res.status === 200) {
         message.success('Backend Connected.');

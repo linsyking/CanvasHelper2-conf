@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { AxiosError } from 'axios'
 export let Base_url = '';
+export let customPort = '';
 
-export async function customBaseurl(value: any){
-  Base_url = value;
+export async function customBaseurl(port: any){
+  customPort = port;
+  Base_url = 'http://localhost:' + port;
 }
 
 export async function get(path: string) {
