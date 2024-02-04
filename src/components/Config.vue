@@ -11,7 +11,9 @@
       <p>The URL of your canvas.</p>
       <a-input v-model:value="url" placeholder="Url" />
       <a-typography-title :level="3">Access Token</a-typography-title>
-      <p>Access Token of your canvas account. (<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-manage-API-access-tokens-as-an-admin/ta-p/89" target="_blank">Tutorial for getting an access token</a>)</p>
+      <p>Access Token of your canvas account. (<a
+          href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-manage-API-access-tokens-as-an-admin/ta-p/89"
+          target="_blank">Tutorial for getting an access token</a>)</p>
       <a-input v-model:value="token" placeholder="Access Token" />
       <a-typography-title :level="3">Semester <a-badge count="v 2.0" :number-style="{ backgroundColor: '#52c41a' }" />
       </a-typography-title>
@@ -138,7 +140,7 @@ export default defineComponent({
       }
       if (change.file.status == 'removed') {
         // Remove file
-        const res = await del(`/file?name=${change.file.name}`);
+        const res = await del(`/file?name=${change.file.name}`, { withCredentials: true });
         if (res && res.status == 200) {
           message.success('Remove success');
         } else {
@@ -156,7 +158,7 @@ export default defineComponent({
       message.success('Deleted user data');
     },
     async remove_attribute(key: string) {
-      const res = await del(`/config/key/${key}`);
+      const res = await del(`/config/key/${key}`, { withCredentials: true });
       return res && res.status == 200;
     },
     async set_attribute(key: string, value: number | string) {
@@ -168,7 +170,7 @@ export default defineComponent({
       if (typeof value === 'string') {
         value = '"' + value + '"';
       }
-      const res = await put(`/config/key/${key}`, value);
+      const res = await put(`/config/key/${key}`, value, { withCredentials: true });
       if (!res || res.status != 200) {
         message.error('Failed to set attribute: ' + key);
         this.has_err = true;
@@ -176,7 +178,7 @@ export default defineComponent({
     },
     async reload_files() {
       this.background_filelist = [];
-      const all_files = await get('/file');
+      const all_files = await get('/file', { withCredentials: true });
       if (all_files && all_files.status === 200) {
         for (const filename of all_files.data["files"]) {
           this.background_filelist.push({
@@ -190,7 +192,7 @@ export default defineComponent({
     },
     async reload() {
       // Reload configuration
-      const res = await get('/config');
+      const res = await get('/config', { withCredentials: true });
       if (res && res.status === 200) {
         // Got configuration
         const conf = res.data;
@@ -218,7 +220,7 @@ export default defineComponent({
     async verify() {
       // Verify the configuration
       this.verify_loading = true;
-      const res = await get('/config/verify');
+      const res = await get('/config/verify', { withCredentials: true });
       if (res && res.status === 200) {
         message.success('Configuration verified');
       } else {
@@ -229,7 +231,7 @@ export default defineComponent({
     async force_reload() {
       // Force Reload
       this.reload_loading = true;
-      const res = await get('/config/refresh');
+      const res = await get('/config/refresh', { withCredentials: true });
       if (res && res.status === 200) {
         message.success('Configuration reloaded');
       } else {
